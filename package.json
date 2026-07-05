@@ -2,17 +2,20 @@
   "name": "pdf-mcp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/main.js",
+  "bin": "dist/main.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc",
+    "dev": "tsx watch src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "express": "^5.1.0",
     "node-qpdf2": "^6.0.0",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
@@ -20,7 +23,9 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.0.1",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.3"
   }
 }

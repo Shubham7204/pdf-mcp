@@ -1,6 +1,6 @@
 import { execFile } from "child_process";
 import { promisify } from "util";
-import path from "path";
+import { resolveSafePath, assertFileExists } from "../lib/paths.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -21,17 +21,18 @@ const qualityMap: Record<CompressionQuality, { objectStreams: string; compressSt
 export async function compressPdf(input: CompressInput): Promise<string> {
   const quality = input.quality ?? "medium";
   const options = qualityMap[quality];
-  const inputPath = path.resolve(input.file);
-  const outputPath = path.resolve(input.output);
+  const inputPath = resolveSafePath(input.file);
+  const outputPath = resolveSafePath(input.output);
 
   try {
+    await assertFileExists(inputPath);
     await execFileAsync("qpdf", [
       `--object-streams=${options.objectStreams}`,
       `--compress-streams=${options.compressStreams}`,
       `--decode-level=${options.decodeLevel}`,
       inputPath,
       outputPath,
-    ]);
+    ], { timeout: 30_000 });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to compress PDF: ${message}`);

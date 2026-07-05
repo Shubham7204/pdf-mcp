@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "fs/promises";
 import { PDFDocument } from "pdf-lib";
-import path from "path";
+import { resolveSafePath, assertFileExists } from "../lib/paths.js";
 
 export interface SplitInput {
   file: string;        // input PDF path
@@ -9,7 +9,10 @@ export interface SplitInput {
 }
 
 export async function splitPdf(input: SplitInput): Promise<string> {
-  const bytes = await readFile(input.file);
+  const resolvedPath = resolveSafePath(input.file);
+  await assertFileExists(resolvedPath);
+
+  const bytes = await readFile(resolvedPath);
   const srcDoc = await PDFDocument.load(bytes);
   const newDoc = await PDFDocument.create();
 
@@ -19,7 +22,7 @@ export async function splitPdf(input: SplitInput): Promise<string> {
   copied.forEach((page) => newDoc.addPage(page));
 
   const outputBytes = await newDoc.save();
-  const resolvedOutput = path.resolve(input.output);
+  const resolvedOutput = resolveSafePath(input.output);
   await writeFile(resolvedOutput, outputBytes);
 
   return `Extracted pages [${input.pages.join(", ")}] from ${input.file} → ${resolvedOutput}`;
